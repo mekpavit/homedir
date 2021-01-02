@@ -3,3 +3,5 @@
 # Except for these
 !.gitignore
 !.gitconfig
+!.emacs
+!.zshrc
