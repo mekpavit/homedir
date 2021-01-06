@@ -1,74 +1,197 @@
 * Mek's Emacs Configuration
+** Emacs Basic Configuration
+*** Soft wrap line just like vim
+    #+begin_src emacs-lisp
+    (add-hook 'after-change-major-mode-hook 'visual-line-mode)
+    #+end_src
+*** Set Font
+    #+begin_src emacs-lisp
+	  (add-to-list 'default-frame-alist '(font . "JetBrains Mono-15:weight=semi-light"))
+	  (set-face-attribute 'default t :font "JetBrains Mono-15:weight=semi-light")
+    #+end_src
+*** Utility Functions
+    #+begin_src emacs-lisp
+      (defun my-open-config-file-func ()
+	"Open ~/.emacs.d/emacs_config.org"
+	(interactive)
+	(find-file (expand-file-name "emacs_config.org" user-emacs-directory))
+      )
+    #+end_src
+** Emacs's Package Manager
+    
+    I use [[https://github.com/raxod502/straight.el][straight.el]] as Emacs's package manager. This snippet installs straight.el to my Emacs.
 
+    #+begin_src emacs-lisp
+	(defvar bootstrap-version)
+	(let ((bootstrap-file
+		(expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+	    (bootstrap-version 5))
+	(unless (file-exists-p bootstrap-file)
+	    (with-current-buffer
+		(url-retrieve-synchronously
+		"https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+		'silent 'inhibit-cookies)
+	    (goto-char (point-max))
+	    (eval-print-last-sexp)))
+	(load bootstrap-file nil 'nomessage))
+    #+end_src
+   
+    Then install =use-package= for managing package configurations and make =straight.el= compatible with =use-package=
+   
+    #+begin_src emacs-lisp
+      (straight-use-package 'use-package)
+      (setq straight-use-package-by-default t)
+    #+end_src 
+
+** Emacs's Packages
+*** Dracula Theme
+    #+begin_src emacs-lisp
+      (use-package dracula-theme
+	:config
+	(load-theme 'dracula t))
+    #+end_src 
+
+*** exec-path-from-shell
+    Copy shell's environment variables to Emacs. Mostly if we're not doing this, =PATH= will be wrong and cause many problem.
+    #+begin_src emacs-lisp
+      (use-package exec-path-from-shell)
+      (when (memq window-system '(mac ns x))
+	(exec-path-from-shell-initialize))
+    #+end_src 
+    
+*** Projectile
+    #+begin_src emacs-lisp
+    (use-package projectile)
+    #+end_src
+*** Vi's Keybinding 
+**** evil
+    Must have package to bind vi's key to Emacs
+    #+begin_src emacs-lisp
+      (use-package evil
+	:init
+	(setq evil-want-integration t)
+	(setq evil-want-keybinding nil)
+	:config
+	(evil-mode 1))
+
+      (use-package evil-collection
+	:after evil
+	:config
+	(evil-collection-init))
+
+    #+end_src 
+    
+**** evil-escape
+    Change vi's escape key from =ESC= to my beloved =jk=
+    #+begin_src emacs-lisp
+    (use-package evil-escape
+	:config
+	(progn
+	(evil-escape-mode)
+	(setq-default evil-escape-key-sequence "jk")))
+    #+end_src 
+
+*** Org-mode
+**** ox-hugo
+     Org-mode exporting function that converts org file to Hugo markdown
+    #+begin_src emacs-lisp
+      (use-package ox-hugo
+	:after ox)
+    #+end_src 
+
+**** ob-go
+     Enable Org-Babel to compile =Go= code
+    #+begin_src emacs-lisp
+      (use-package ob-go
+		  :config
+		  (org-babel-do-load-languages
+		   'org-babel-load-languages
+		   '((go . t))))
+    #+end_src 
+    
+*** Essential Packages
+**** Magit
+     The best way to deal with git on Emacs. Add =evil-magit= for vi's keybinding.
+    #+begin_src emacs-lisp
+      (use-package magit)
+    #+end_src 
+    
+*** Language
+**** Go
+     
+***** go-mode     
+     Go's major mode for Emacs
+    #+begin_src emacs-lisp
+      (use-package go-mode)
+    #+end_src 
+
+***** Useful Go function
+      
+**** LSP
   #+begin_src emacs-lisp
+    (use-package lsp-mode
+      :commands (lsp lsp-deferred)
+      :hook
+      (go-mode . lsp-deferred)
+      (emacs-lisp-mode . lsp-deferred))
+    ;; Set up before-save hooks to format buffer and add/delete imports.
+    ;; Make sure you don't have other gofmt/goimports hooks enabled.
+    (defun lsp-go-install-save-hooks ()
+      (add-hook 'before-save-hook #'lsp-format-buffer t t)
+      (add-hook 'before-save-hook #'lsp-organize-imports t t))
+    (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+    ;; Optional - provides fancier overlays.
+    (use-package lsp-ui
+      :commands lsp-ui-mode)
 
-(straight-use-package 'use-package)
-(setq straight-use-package-by-default t)
+    ;; Company mode is a standard completion package that works well with lsp-mode.
+    (use-package company
+      :config
+      ;; Optionally enable completion-as-you-type behavior.
+      (setq company-idle-delay 0)
+      (setq company-minimum-prefix-length 1))
 
-(add-hook 'org-mode-hook #'visual-line-mode)
-
-(use-package exec-path-from-shell)
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
-
-(use-package evil
-  :init
-  (evil-mode 1))
-
-(use-package evil-escape
-  :config
-  (progn
-    (evil-escape-mode)
-    (setq-default evil-escape-key-sequence "jk")))
-
-(use-package ox-hugo
-  :after ox)
-
-(use-package ob-go
-	    :config
-	    (org-babel-do-load-languages
-	     'org-babel-load-languages
-	     '((go . t))))
-
-(use-package go-mode)
-
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :hook (go-mode . lsp-deferred))
-
-;; Set up before-save hooks to format buffer and add/delete imports.
-;; Make sure you don't have other gofmt/goimports hooks enabled.
-(defun lsp-go-install-save-hooks ()
-  (add-hook 'before-save-hook #'lsp-format-buffer t t)
-  (add-hook 'before-save-hook #'lsp-organize-imports t t))
-(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
-
-;; Optional - provides fancier overlays.
-(use-package lsp-ui
-  :commands lsp-ui-mode)
-
-;; Company mode is a standard completion package that works well with lsp-mode.
-(use-package company
-  :config
-  ;; Optionally enable completion-as-you-type behavior.
-  (setq company-idle-delay 0)
-  (setq company-minimum-prefix-length 1))
-
-;; Optional - provides snippet support.
-(use-package yasnippet
-  :commands yas-minor-mode
-  :hook (go-mode . yas-minor-mode))
+    ;; Optional - provides snippet support.
+    (use-package yasnippet
+      :commands yas-minor-mode
+      :hook (go-mode . yas-minor-mode))
   #+end_src
+
+*** Key Binding 
+    #+begin_src emacs-lisp
+      (use-package ivy
+	:config
+	(ivy-mode))
+
+      (use-package which-key
+	:config
+	(which-key-mode))
+
+      (use-package general)
+
+      (general-create-definer my-leader-def
+	:prefix "SPC")
+      (general-create-definer my-local-leader-def
+	:prefix "SPC m")
+
+      (my-leader-def
+	:keymaps 'normal
+	"," '(switch-to-buffer :which-key "Switch buffer")
+	"b" '(:ignore t :which-key "Buffer")
+	"bN" '(evil-buffer-new :which-key "Create new buffer")
+	"bk" '(kill-current-buffer :which-key "Kill current buffer")
+	"bs" '(basic-save-buffer :which-key "Save current buffer")
+	"c" '(:ignore t :which-key "Code")
+	"ca" '(lsp-execute-code-action :which-key "Execute code action")
+	"cr" '(lsp-rename :which-key "Rename")
+	"cd" '(lsp-find-definition :which-key "Jump to definition")
+	"cD" '(lsp-find-references :which-key "List references")
+	"f" '(:ignore t :which-key "File")
+	"ff" '(find-file :which-key "Find file")
+	"fp" '(my-open-config-file-func :which-key "Open emacs_config.org")
+	"gg" '(magit-status :which-key "Open Magit menu")
+	"gb" '(magit-branch-checkout :which-key "Git checkout")
+	"p" '(:ignore t :which-key "Project")
+	"pp" '(projectile-switch-project :which-key "Switch project"))
+    #+end_src
