@@ -3,6 +3,7 @@
 # Except for these
 !.gitignore
 !.gitconfig
-!.emacs
+!.emacs.d/init.el
+!.emacs.d/emacs_config.org
 !.zshrc
 !.zshenv
