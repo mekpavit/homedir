@@ -130,6 +130,8 @@
 **** LSP
   #+begin_src emacs-lisp
     (use-package lsp-mode
+      :init
+      (setq lsp-go-gopls-server-args '("serve" "-rpc.trace" "--debug=localhost:6060"))
       :commands (lsp lsp-deferred)
       :hook
       (go-mode . lsp-deferred)
@@ -156,6 +158,8 @@
     (use-package yasnippet
       :commands yas-minor-mode
       :hook (go-mode . yas-minor-mode))
+
+    (use-package flycheck)
   #+end_src
 
 *** Key Binding 
