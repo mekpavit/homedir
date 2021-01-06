@@ -1,9 +1,10 @@
 # Blacklist all in this folder
 /*
+
 # Except for these
 !.gitignore
 !.gitconfig
-!/.emacs.d/init.el
-!/.emacs.d/emacs_config.org
+!.emacs.d/init.el
+!.emacs.d/emacs_config.org
 !.zshrc
 !.zshenv
