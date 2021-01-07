@@ -1,13 +1,39 @@
 * Mek's Emacs Configuration
 ** Emacs Basic Configuration
+*** Start-up Performance
+    #+begin_src emacs-lisp
+      ;; The default is 800 kilobytes.  Measured in bytes.
+      (setq gc-cons-threshold (* 50 1000 1000))
+
+      ;; Profile emacs startup
+      (add-hook 'emacs-startup-hook
+		(lambda ()
+		  (message "*** Emacs loaded in %s with %d garbage collections."
+			   (format "%.2f seconds"
+				   (float-time
+				    (time-subtract after-init-time before-init-time)))
+			   gcs-done)))
+    #+end_src
 *** Soft wrap line just like vim
     #+begin_src emacs-lisp
-    (add-hook 'after-change-major-mode-hook 'visual-line-mode)
+      (add-hook 'after-change-major-mode-hook 'visual-line-mode)
+      (add-hook 'after-change-major-mode-hook 'toggle-word-wrap)
     #+end_src
 *** Set Font
     #+begin_src emacs-lisp
-	  (add-to-list 'default-frame-alist '(font . "JetBrains Mono-15:weight=semi-light"))
-	  (set-face-attribute 'default t :font "JetBrains Mono-15:weight=semi-light")
+      (add-to-list 'default-frame-alist '(font . "JetBrains Mono-15:weight=semi-light"))
+      (set-face-attribute 'default t :font "JetBrains Mono-15:weight=semi-light")
+    #+end_src
+*** Set relative line number
+    #+begin_src emacs-lisp
+      (setq display-line-numbers-type 'relative) 
+      (global-display-line-numbers-mode)
+    #+end_src
+*** UI
+    #+begin_src emacs-lisp
+      (tool-bar-mode -1)
+      (menu-bar-mode -1)
+      (setq scroll-step 1)
     #+end_src
 *** Utility Functions
     #+begin_src emacs-lisp
@@ -18,7 +44,6 @@
       )
     #+end_src
 ** Emacs's Package Manager
-    
     I use [[https://github.com/raxod502/straight.el][straight.el]] as Emacs's package manager. This snippet installs straight.el to my Emacs.
 
     #+begin_src emacs-lisp
@@ -44,6 +69,10 @@
     #+end_src 
 
 ** Emacs's Packages
+*** Remove Minor-mode from modelines
+    #+begin_src emacs-lisp
+      (use-package diminish)
+    #+end_src
 *** Dracula Theme
     #+begin_src emacs-lisp
       (use-package dracula-theme
@@ -61,7 +90,9 @@
     
 *** Projectile
     #+begin_src emacs-lisp
-    (use-package projectile)
+	  (use-package projectile
+	    :config
+	    (projectile-global-mode))
     #+end_src
 *** Vi's Keybinding 
 **** evil
@@ -71,6 +102,9 @@
 	:init
 	(setq evil-want-integration t)
 	(setq evil-want-keybinding nil)
+	(setq evil-want-C-u-scroll t)
+	(setq evil-want-C-i-jump nil)
+	(setq evil-respect-visual-line-mode t)
 	:config
 	(evil-mode 1))
 
@@ -130,8 +164,6 @@
 **** LSP
   #+begin_src emacs-lisp
     (use-package lsp-mode
-      :init
-      (setq lsp-go-gopls-server-args '("serve" "-rpc.trace" "--debug=localhost:6060"))
       :commands (lsp lsp-deferred)
       :hook
       (go-mode . lsp-deferred)
@@ -166,11 +198,16 @@
     #+begin_src emacs-lisp
       (use-package ivy
 	:config
-	(ivy-mode))
+	(ivy-mode)
+	:bind (:map ivy-minibuffer-map
+	       ("TAB" . ivy-alt-done)
+	       ("C-j" . ivy-next-line)
+	       ("C-k" . ivy-previous-line)))
 
       (use-package which-key
 	:config
-	(which-key-mode))
+	(which-key-mode)
+	:diminish which-key-mode)
 
       (use-package general)
 
@@ -197,5 +234,7 @@
 	"gg" '(magit-status :which-key "Open Magit menu")
 	"gb" '(magit-branch-checkout :which-key "Git checkout")
 	"p" '(:ignore t :which-key "Project")
-	"pp" '(projectile-switch-project :which-key "Switch project"))
+	"pp" '(projectile-switch-project :which-key "Switch project")
+	"pa" '(projectile-add-known-project :which-key "Add project"))
     #+end_src
+    
