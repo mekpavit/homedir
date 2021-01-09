@@ -5,8 +5,6 @@
 
 (setq doom-theme 'doom-dracula)
 
-(setq org-directory "~/org/")
-
 (setq display-line-numbers-type 'relative)
 
 (defun my/go-coverage-all ()
@@ -37,5 +35,17 @@
        "s" #'my/go-test-single
        "a" #'my/go-test-all))
 
-(use-package! ox-hugo
-	:after ox)
+(setq org-directory "~/org/gtd/")
+(setq org-agenda-files '("~/org/gtd/next_actions.org" "~/org/gtd/projects.org" "~/org/gtd/calendar.org"))
+(setq org-capture-templates
+       `(("i" "In" entry  (file+headline "~/org/gtd/in.org" "In")
+        ,(concat "* TODO (Added on %U) %?\n"))))
+(setq org-refile-targets '(("~/org/gtd/projects.org" :maxlevel . 2)
+                           ("~/org/gtd/next_actions.org" :level . 1)
+                           ("~/org/gtd/calendar.org" :level . 1)
+                           ("~/org/gtd/wanting_for.org" :level . 1)
+                           ("~/org/gtd/referrences.org" :level . 1)
+                           ("~/org/gtd/someday.org" :level . 1)))
+(add-hook! org-load
+        (setq org-todo-keywords
+              '((sequence "TODO" "DONE" "WAITING"))))
