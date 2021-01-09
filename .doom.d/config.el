@@ -39,7 +39,7 @@
 (setq org-agenda-files '("~/org/gtd/next_actions.org" "~/org/gtd/projects.org" "~/org/gtd/calendar.org"))
 (setq org-capture-templates
        `(("i" "In" entry  (file+headline "~/org/gtd/in.org" "In")
-        ,(concat "* TODO (Added on %U) %?\n"))))
+        ,(concat "* (Added on %U) %?\n"))))
 (setq org-refile-targets '(("~/org/gtd/projects.org" :maxlevel . 2)
                            ("~/org/gtd/next_actions.org" :level . 1)
                            ("~/org/gtd/calendar.org" :level . 1)
