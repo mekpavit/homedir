@@ -4,7 +4,6 @@
 # Except for these
 !.gitignore
 !.gitconfig
-!.emacs.d/init.el
-!.emacs.d/emacs_config.org
+!.doom.d/*
 !.zshrc
 !.zshenv
