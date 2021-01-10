@@ -26,7 +26,7 @@
 (defun my/go--set-build-tags (build-tags)
     (interactive
      (list (read-from-minibuffer "Go build tags: ")))
-    "Accept build tags (separated by commas), set lsp-gopls-build-flags to ['tags=build-tags] and restart language server"
+    "Accept build tags (separated by commas), set lsp-go-build-flags to ['tags=build-tags] and restart language server"
   (setq my/go-build-tags build-tags)
   (setq lsp-go-build-flags (vector (concat "-tags=" my/go-build-tags)))
   (dolist (workspace (lsp-workspaces)) (lsp-workspace-restart workspace)))
@@ -50,6 +50,11 @@
        "f" #'my/go--set-build-tags)
       (:prefix ("c" . "coverage")
        "a" #'my/go--coverage-all))
+
+(use-package! company
+  :config
+  (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 1))
 
 (setq org-directory "~/org/gtd/")
 (setq org-agenda-files '("~/org/gtd/next_actions.org" "~/org/gtd/projects.org" "~/org/gtd/calendar.org" "~/org/gtd/waiting_for.org"))

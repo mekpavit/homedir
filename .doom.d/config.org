@@ -18,7 +18,9 @@
 (setq display-line-numbers-type 'relative)
 #+end_src
 ** Go Setup
-
+- TODO fix =go-impl=
+  + Somehow, =go-impl-command= is =nil=
+  + Interface completion shows only package names not package.interface
 #+begin_src elisp :tangle packages.el
 (package! go-impl)
 #+end_src
@@ -41,20 +43,20 @@ Fix go-impl by changing its tool from =godoc= to =go doc=. Credit [[https://gith
 
 #+end_src
 
-#+RESULTS:
-
-Add function to define Go's build tags
+Add function to define custom Go's build tags and also update LSP server to accept the custom tags
 #+begin_src elisp
 (setq my/go-build-tags "")
 (defun my/go--set-build-tags (build-tags)
     (interactive
      (list (read-from-minibuffer "Go build tags: ")))
-    "Accept build tags (separated by commas), set lsp-gopls-build-flags to ['tags=build-tags] and restart language server"
+    "Accept build tags (separated by commas), set lsp-go-build-flags to ['tags=build-tags] and restart language server"
   (setq my/go-build-tags build-tags)
   (setq lsp-go-build-flags (vector (concat "-tags=" my/go-build-tags)))
   (dolist (workspace (lsp-workspaces)) (lsp-workspace-restart workspace)))
 #+end_src
 
+- Add =my/go--coverage-all= for showing coverage profile buffer.
+- Update =go--run-tests= to include Go's build tags
 #+begin_src elisp
 (defun my/go--coverage-all ()
   "Show go coverage of current buffer."
@@ -77,6 +79,14 @@ Add function to define Go's build tags
        "a" #'my/go--coverage-all))
 #+end_src
 
+** LSP
+Setup =company= to immediately autosuggest. This is much better for me since I moved from GoLand.
+#+begin_src elisp
+(use-package! company
+  :config
+  (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 1))
+#+end_src
 ** GTD
 #+begin_src elisp
 (setq org-directory "~/org/gtd/")
