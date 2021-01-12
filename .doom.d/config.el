@@ -7,6 +7,17 @@
 
 (setq display-line-numbers-type 'relative)
 
+(defun my/hard-wrap-line ()
+  (visual-line-mode 1)
+  (toggle-word-wrap -1))
+
+(add-hook! 'go-mode-hook 'my/hard-wrap-line)
+
+(defun lsp-go-install-save-hooks ()
+  (add-hook! 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook! 'before-save-hook #'lsp-organize-imports t t))
+(add-hook! 'go-mode-hook #'lsp-go-install-save-hooks)
+
 (defun my/go-impl--collect-interface (package)
   (with-temp-buffer
     (unless (zerop (process-file "go" nil t nil "doc" "-src" package))
@@ -72,4 +83,4 @@
                            ("~/org/gtd/trash.org" :level . 1)))
 (after! org
         (setq org-todo-keywords
-              '((sequence "TODO" "DONE" "WAIT" "HOLD"))))
+              '((sequence "TODO" "NEXT" "WAIT" "BLOCK" "DONE"))))

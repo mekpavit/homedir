@@ -13,11 +13,28 @@
 #+begin_src elisp
 (setq doom-theme 'doom-dracula)
 #+end_src
-*** Line Number
+*** Line
 #+begin_src elisp
 (setq display-line-numbers-type 'relative)
 #+end_src
+*** My utility functions
+#+begin_src elisp
+(defun my/hard-wrap-line ()
+  (visual-line-mode 1)
+  (toggle-word-wrap -1))
+#+end_src
 ** Go Setup
+- Hard-wrap Line just like in Vim
+#+begin_src elisp
+(add-hook! 'go-mode-hook 'my/hard-wrap-line)
+#+end_src
+- Organize import and format buffer right after save go file
+#+begin_src elisp
+(defun lsp-go-install-save-hooks ()
+  (add-hook! 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook! 'before-save-hook #'lsp-organize-imports t t))
+(add-hook! 'go-mode-hook #'lsp-go-install-save-hooks)
+#+end_src
 - TODO fix =go-impl=
   + Somehow, =go-impl-command= is =nil=
   + Interface completion shows only package names not package.interface
@@ -105,5 +122,5 @@ Setup =company= to immediately autosuggest. This is much better for me since I m
                            ("~/org/gtd/trash.org" :level . 1)))
 (after! org
         (setq org-todo-keywords
-              '((sequence "TODO" "DONE" "WAIT" "HOLD"))))
+              '((sequence "TODO" "NEXT" "WAIT" "BLOCK" "DONE"))))
 #+end_src
