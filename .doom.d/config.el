@@ -30,8 +30,34 @@
              finally return (progn
                               (puthash package (cl-copy-list interfaces) go-impl--interface-cache)
                               interfaces))))
+
 (advice-add 'go-impl--collect-interface
             :override 'my/go-impl--collect-interface)
+
+(defun my/go-impl (receiver-name receiver interface)
+  (interactive
+   (let* ((packages (go-packages))
+          (comp-fn (lambda (input)
+                     (go-impl--completing-function packages input nil t)))
+          (struct-name (save-excursion (re-search-backward "^type \\(.*\\) struct") (match-string-no-properties 1))))
+     (setq go-impl--receiver-cache nil)
+     (list
+      (read-from-minibuffer "Receiver name: " nil go-impl--local-command-map nil
+                            'go-impl--receiver-history nil t)
+      (ivy-read "Receiver type: " (list (concat "*" struct-name) struct-name))
+      (ivy-read "Interface: " comp-fn :history 'go-impl--interface-history :dynamic-collection t))))
+  (when go-impl-aliases-alist
+    (setq interface (or (assoc-default interface go-impl-aliases-alist)
+                        interface)))
+  (let ((stubs (go-impl--execute (concat receiver-name " " receiver) interface)))
+    (save-excursion
+      (insert stubs))
+    (when go-impl-enter-function
+      (forward-line)
+      (back-to-indentation))))
+
+(advice-add 'go-impl
+            :override 'my/go-impl)
 
 (setq my/go-build-tags "")
 (defun my/go--set-build-tags (build-tags)
@@ -60,7 +86,8 @@
       (:prefix ("b" . "build")
        "f" #'my/go--set-build-tags)
       (:prefix ("c" . "coverage")
-       "a" #'my/go--coverage-all))
+       "a" #'my/go--coverage-all)
+      "i" #'go-impl)
 
 (use-package! company
   :config
