@@ -39,7 +39,7 @@
    (let* ((packages (go-packages))
           (comp-fn (lambda (input)
                      (go-impl--completing-function packages input nil t)))
-          (struct-name (save-excursion (re-search-backward "^type[ ]+\\(.*\\)[ ]+struct") (match-string-no-properties 1)))
+          (struct-name (save-excursion (re-search-backward "^type[ ]+\\(.*\\)[ ]+[^ ]*") (match-string-no-properties 1)))
           (receiver-name (read-from-minibuffer "Receiver name: ")))
      (setq go-impl--receiver-cache nil)
      (list
