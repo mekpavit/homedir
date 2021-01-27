@@ -93,6 +93,23 @@
   (setq company-idle-delay 0)
   (setq company-minimum-prefix-length 1))
 
+(use-package! dap-mode
+  :config
+  (dap-mode 1)
+  (require 'dap-go)
+  (require 'dap-hydra)
+  (dap-go-setup)
+  (dap-register-debug-template "Go Launch File with Integration Tag Configuration"
+                             (list :type "go"
+                                   :request "launch"
+                                   :name "Launch File"
+                                   :mode "auto"
+                                   :program nil
+                                   :buildFlags "-tags=integration"
+                                   :args nil
+                                   :env nil
+                                   :envFile nil)))
+
 (setq org-directory "~/org/gtd/")
 (setq org-agenda-files '("~/org/gtd/next_actions.org" "~/org/gtd/projects.org" "~/org/gtd/calendar.org" "~/org/gtd/waiting_for.org"))
 (after! org

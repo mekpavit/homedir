@@ -127,6 +127,30 @@ Setup =company= to immediately autosuggest. This is much better for me since I m
   (setq company-idle-delay 0)
   (setq company-minimum-prefix-length 1))
 #+end_src
+
+** DAP Debugger
+#+begin_src elisp :tangle packages.el
+(package! dap-mode)
+#+end_src
+
+#+begin_src elisp
+(use-package! dap-mode
+  :config
+  (dap-mode 1)
+  (require 'dap-go)
+  (require 'dap-hydra)
+  (dap-go-setup)
+  (dap-register-debug-template "Go Launch File with Integration Tag Configuration"
+                             (list :type "go"
+                                   :request "launch"
+                                   :name "Launch File"
+                                   :mode "auto"
+                                   :program nil
+                                   :buildFlags "-tags=integration"
+                                   :args nil
+                                   :env nil
+                                   :envFile nil)))
+#+end_src
 ** GTD
 #+begin_src elisp
 (setq org-directory "~/org/gtd/")
