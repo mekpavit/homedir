@@ -1,3 +1,3 @@
 (package! go-impl)
 
-(package! dap-mode)
+;; (package! dap-mode)
