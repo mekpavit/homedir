@@ -7,6 +7,7 @@ vim.api.nvim_set_keymap('i', '<C-g>', '<ESC>', {noremap = true})
 vim.o.splitright = true -- always create new split windows on right side
 vim.o.relativenumber = true -- use relative line number 
 vim.o.undofile = true -- keep undo history
+vim.api.nvim_exec('let loaded_matchparen = 1', false) -- remove highlight on matching parentheses
 
 -- Remap for dealing with word wrap
 vim.api.nvim_set_keymap('n', 'k', "v:count == 0 ? 'gk' : 'k'", { noremap=true, expr = true, silent = true})
@@ -28,12 +29,13 @@ require('packer').startup(
 
         -- must have plugins
         use 'tpope/vim-surround' -- remap S to add one character surround the visual selected text
-        use 'tpope/vim-fugitive' 
-        use 'tpope/vim-commentary'
-        use 'tpope/vim-sleuth'
-        use 'itchyny/lightline.vim'
+        use 'tpope/vim-fugitive' -- add magit-like features to neovim
+        use 'tpope/vim-commentary' -- add gc action to comment code
+        use 'tpope/vim-sleuth' -- auto detect indent based on opening file
+        use 'itchyny/lightline.vim' -- beatiful status bar
+        use 'windwp/nvim-autopairs' -- auto pair parentheses
 
-        -- nvim-lspconfig provides ready-to-use neovim's native lsp configurations
+        -- ready-to-use neovim's native lsp configurations
         use 'neovim/nvim-lspconfig'
 
         -- various plugins for completion and snippeting
@@ -52,7 +54,11 @@ require('packer').startup(
         --]]
         use {'nvim-telescope/telescope.nvim', requires = {{'nvim-lua/popup.nvim'}, {'nvim-lua/plenary.nvim'}}}
 
+        -- abstract all languages test runner command into 4 simple vim commands
         use 'vim-test/vim-test'
+
+        -- better syntax highlighting
+        use 'nvim-treesitter/nvim-treesitter'
 
     end
 )
@@ -184,4 +190,17 @@ vim.api.nvim_set_keymap("n", "<Leader>mtt", "<cmd>:TestLast -strategy=neovim<<CR
 
 -- START config fugitive
 vim.api.nvim_set_keymap("n", "<Leader>gg", "<cmd>:Git<cr>", {noremap = true})
+-- END
+
+-- START config treesitter
+require('nvim-treesitter.configs').setup({
+  ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  highlight = {
+    enable = true,              -- false will disable the whole extension
+  },
+})
+-- END
+
+-- START config nvim-autopairs
+require('nvim-autopairs').setup()
 -- END
