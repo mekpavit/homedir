@@ -1,3 +1,6 @@
 [user]
 	email = pavit.kiat@gmail.com
 	name = Pavit Kiatkraipob
+
+[url "git@gitlab.com:shopee-th-code"]
+	insteadOf = https://gitlab.com/shopee-th-code

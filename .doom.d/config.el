@@ -11,6 +11,12 @@
   (visual-line-mode 1)
   (toggle-word-wrap -1))
 
+(use-package! openapi-yaml-mode
+  :config
+  (set-company-backend! 'openapi-yaml-mode 'company-capf))
+
+(setq! lsp-dart-sdk-dir "~/flutter/bin/cache/dart-sdk")
+
 (add-hook! 'go-mode-hook 'my/hard-wrap-line)
 
 (defun lsp-go-install-save-hooks ()

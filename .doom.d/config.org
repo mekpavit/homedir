@@ -23,6 +23,23 @@ ry Doom Emacs's Configuration
   (visual-line-mode 1)
   (toggle-word-wrap -1))
 #+end_src
+** OpenAPI Setup
+- Install major mode for OpenAPI
+  #+begin_src elisp :tangle packages.el
+(package! openapi-yaml-mode :recipe
+  (:host github
+  :repo "magoyette/openapi-yaml-mode"
+  :branch "master"))
+  #+end_src
+  #+begin_src elisp
+(use-package! openapi-yaml-mode
+  :config
+  (set-company-backend! 'openapi-yaml-mode 'company-capf))
+  #+end_src
+** Flutter Setup
+#+begin_src elisp
+(setq! lsp-dart-sdk-dir "~/flutter/bin/cache/dart-sdk")
+#+end_src
 ** Go Setup
 - Hard-wrap Line just like in Vim
 #+begin_src elisp
