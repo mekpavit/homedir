@@ -160,6 +160,10 @@ vim.api.nvim_set_keymap('s', '<C-j>', '<Tab>', {noremap = true} )
 vim.api.nvim_set_keymap('s', '<C-k>', '<S-Tab>', {noremap = true} )
 -- END
 
+-- START config vim-vsnip
+vim.api.nvim_exec("inoremap <silent><expr> <CR>      compe#confirm('<CR>')", false)
+-- END
+
 -- START config nerdtree
 vim.api.nvim_set_keymap('n', '<Leader>op', ':NERDTreeToggle<CR>', {})
 -- END
