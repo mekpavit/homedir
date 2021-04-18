@@ -154,6 +154,8 @@ require('compe').setup({
 })
 vim.api.nvim_set_keymap('i', '<C-j>', '<C-n>', {noremap = true} )
 vim.api.nvim_set_keymap('i', '<C-k>', '<C-p>', {noremap = true} )
+vim.api.nvim_set_keymap('c', '<C-j>', '<C-n>', {noremap = true} )
+vim.api.nvim_set_keymap('c', '<C-k>', '<C-p>', {noremap = true} )
 vim.api.nvim_set_keymap('s', '<C-j>', '<Tab>', {noremap = true} )
 vim.api.nvim_set_keymap('s', '<C-k>', '<S-Tab>', {noremap = true} )
 -- END
