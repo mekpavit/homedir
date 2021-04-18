@@ -7,6 +7,7 @@ vim.api.nvim_set_keymap('i', '<C-g>', '<ESC>', {noremap = true})
 vim.o.splitright = true -- always create new split windows on right side
 vim.o.relativenumber = true -- use relative line number 
 vim.o.undofile = true -- keep undo history
+vim.o.tabstop = 4 -- set tab size to 4 space
 vim.api.nvim_exec('let loaded_matchparen = 1', false) -- remove highlight on matching parentheses
 
 -- Remap for dealing with word wrap
@@ -84,21 +85,8 @@ local on_attach = function(client, bufnr)
 
     -- Set some keybinds conditional on server capabilities
     if client.resolved_capabilities.document_formatting then
+        vim.api.nvim_exec('autocmd BufWritePre * lua vim.lsp.buf.formatting()', false)
         buf_set_keymap("n", "<space>cf", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
-    end
-
-    -- Set autocommands conditional on server_capabilities
-    if client.resolved_capabilities.document_highlight then
-        vim.api.nvim_exec([[
-            hi LspReferenceRead cterm=bold ctermbg=red guibg=LightYellow
-            hi LspReferenceText cterm=bold ctermbg=red guibg=LightYellow
-            hi LspReferenceWrite cterm=bold ctermbg=red guibg=LightYellow
-            augroup lsp_document_highlight
-              autocmd! * <buffer>
-              autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
-              autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
-            augroup END
-        ]], false)
     end
 end
 
@@ -142,27 +130,27 @@ vim.api.nvim_set_keymap('n', '<Leader>cR', '<cmd>:Telescope lsp_references<cr>',
 -- START config nvim-compe
 vim.o.completeopt = 'menuone,noselect'
 require('compe').setup({
-  enabled = true;
-  autocomplete = true;
-  debug = false;
-  min_length = 1;
-  preselect = 'enable';
-  throttle_time = 80;
-  source_timeout = 200;
-  incomplete_delay = 400;
-  max_abbr_width = 100;
-  max_kind_width = 100;
-  max_menu_width = 100;
-  documentation = true;
+    enabled = true;
+    autocomplete = true;
+    debug = false;
+    min_length = 1;
+    preselect = 'enable';
+    throttle_time = 80;
+    source_timeout = 200;
+    incomplete_delay = 400;
+    max_abbr_width = 100;
+    max_kind_width = 100;
+    max_menu_width = 100;
+    documentation = true;
 
-  source = {
-    path = true;
-    buffer = true;
-    calc = true;
-    nvim_lsp = true;
-    nvim_lua = true;
-    vsnip = true;
-  };
+    source = {
+        path = true;
+        buffer = true;
+        calc = true;
+        nvim_lsp = true;
+        nvim_lua = true;
+        vsnip = true;
+    };
 })
 vim.api.nvim_set_keymap('i', '<C-j>', '<C-n>', {noremap = true} )
 vim.api.nvim_set_keymap('i', '<C-k>', '<C-p>', {noremap = true} )
@@ -194,10 +182,10 @@ vim.api.nvim_set_keymap("n", "<Leader>gg", "<cmd>:Git<cr>", {noremap = true})
 
 -- START config treesitter
 require('nvim-treesitter.configs').setup({
-  ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
-  highlight = {
-    enable = true,              -- false will disable the whole extension
-  },
+    ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+    highlight = {
+      enable = true,              -- false will disable the whole extension
+    },
 })
 -- END
 
