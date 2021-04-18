@@ -6,6 +6,7 @@ vim.api.nvim_set_keymap('i', '<C-g>', '<ESC>', {noremap = true})
 
 vim.o.splitright = true -- always create new split windows on right side
 vim.o.relativenumber = true -- use relative line number 
+vim.o.number = true -- show absolute line number of the current line
 vim.o.undofile = true -- keep undo history
 vim.o.tabstop = 4 -- set tab size to 4 space
 vim.api.nvim_exec('let loaded_matchparen = 1', false) -- remove highlight on matching parentheses
