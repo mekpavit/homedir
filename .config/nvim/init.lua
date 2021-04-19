@@ -3,17 +3,29 @@
 vim.g.mapleader = ' '
 vim.api.nvim_set_keymap('i', 'jk', '<ESC>', {noremap = true})
 vim.api.nvim_set_keymap('i', '<C-g>', '<ESC>', {noremap = true})
-
+----
 vim.o.splitright = true -- always create new split windows on right side
 vim.o.relativenumber = true -- use relative line number 
 vim.o.number = true -- show absolute line number of the current line
 vim.o.undofile = true -- keep undo history
 vim.o.tabstop = 4 -- set tab size to 4 space
+vim.o.clipboard = 'unnamed' -- make yank and put working with macOS native copy and paste
 vim.api.nvim_exec('let loaded_matchparen = 1', false) -- remove highlight on matching parentheses
-
--- Remap for dealing with word wrap
+---- Hightlight on yank
+vim.api.nvim_exec([[
+  augroup YankHighlight
+    autocmd!
+    autocmd TextYankPost * silent! lua vim.highlight.on_yank()
+  augroup end
+]], false)
+----
+---- Y yank until the end of line
+vim.api.nvim_set_keymap('n', 'Y', 'y$', { noremap = true})
+----
+---- Remap for dealing with word wrap
 vim.api.nvim_set_keymap('n', 'k', "v:count == 0 ? 'gk' : 'k'", { noremap=true, expr = true, silent = true})
 vim.api.nvim_set_keymap('n', 'j', "v:count == 0 ? 'gj' : 'j'", {noremap= true, expr = true, silent = true})
+----
 -- END
 
 -- START install packer.nvim for package management
@@ -86,25 +98,17 @@ local on_attach = function(client, bufnr)
 
     -- Set some keybinds conditional on server capabilities
     if client.resolved_capabilities.document_formatting then
-        vim.api.nvim_exec('autocmd BufWritePre * lua vim.lsp.buf.formatting()', false)
+        vim.api.nvim_exec('autocmd BufWritePre * lua vim.lsp.buf.formatting_sync(nil, 1000)', false)
         buf_set_keymap("n", "<space>cf", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
     end
 end
 
 -- Use a loop to conveniently both setup defined servers 
 -- and map buffer local keybindings when the language server attaches
-local servers = { "gopls", "tsserver" }
+local servers = { "gopls", "tsserver", "dartls" }
 for _, lsp in ipairs(servers) do
     nvim_lsp[lsp].setup { on_attach = on_attach }
 end 
-
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.textDocument.completion.completionItem.snippetSupport = true
-
-nvim_lsp.dartls.setup{
-    on_attach = on_attach,
-    capabilities = capabilities,
-}
 -- END
 
 -- START config telescope
@@ -136,7 +140,7 @@ require('compe').setup({
     autocomplete = true;
     debug = false;
     min_length = 1;
-    preselect = 'enable';
+    preselect = 'always';
     throttle_time = 80;
     source_timeout = 200;
     incomplete_delay = 400;
@@ -181,7 +185,7 @@ vim.g.lightline = { colorscheme = 'powerline';
 vim.api.nvim_set_keymap("t", "jk", '<C-\\><C-n>', {noremap = true}) -- to be able to use jk on test result buffer
 vim.api.nvim_set_keymap("n", "<Leader>mts", "<cmd>:TestNearest -strategy=neovim<CR>", {noremap = true})
 vim.api.nvim_set_keymap("n", "<Leader>mta", "<cmd>:TestFile -strategy=neovim<CR>", {noremap = true})
-vim.api.nvim_set_keymap("n", "<Leader>mtt", "<cmd>:TestLast -strategy=neovim<<CR>", {noremap = true})
+vim.api.nvim_set_keymap("n", "<Leader>mtt", "<cmd>:TestLast -strategy=neovim<CR>", {noremap = true})
 -- END
 
 -- START config fugitive
