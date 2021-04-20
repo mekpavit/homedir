@@ -1,10 +1,13 @@
 -- START my vim general config
 ---- Remap leader to Space
-vim.g.mapleader = ' '
-vim.api.nvim_set_keymap('i', 'jk', '<ESC>', {noremap = true})
-vim.api.nvim_set_keymap('i', '<C-g>', '<ESC>', {noremap = true})
+vim.g.mapleader = ' ' -- <Space> to be leader shortcut
+vim.api.nvim_set_keymap('i', 'jk', '<ESC>', {noremap = true}) -- to exit to normal mode
+vim.api.nvim_set_keymap('i', '<C-g>', '<ESC>', {noremap = true}) -- <C-g> to exit to normal mode
+vim.api.nvim_set_keymap('x', '<C-g>', '<ESC>', {noremap = true}) -- <C-g> to clear visual select
+vim.api.nvim_set_keymap('n', '<C-g>', '<cmd>:noh<cr>', {noremap = true}) -- <C-g> to clear highlight
 ----
 vim.o.splitright = true -- always create new split windows on right side
+vim.o.splitbelow = true -- always create new split windows on bottom
 vim.o.relativenumber = true -- use relative line number 
 vim.o.number = true -- show absolute line number of the current line
 vim.o.undofile = true -- keep undo history
