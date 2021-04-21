@@ -95,23 +95,30 @@ local on_attach = function(client, bufnr)
     buf_set_keymap('n', 'gh', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
     buf_set_keymap('n', '<Leader>ci', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
     buf_set_keymap('n', '<Leader>cr', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-    buf_set_keymap('n', '<Leader>ce', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
     buf_set_keymap('n', '[e', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
     buf_set_keymap('n', ']e', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
 
     -- Set some keybinds conditional on server capabilities
     if client.resolved_capabilities.document_formatting then
-        vim.api.nvim_exec('autocmd BufWritePre * lua vim.lsp.buf.formatting_sync(nil, 1000)', false)
         buf_set_keymap("n", "<space>cf", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
     end
 end
 
 -- Use a loop to conveniently both setup defined servers 
 -- and map buffer local keybindings when the language server attaches
-local servers = { "gopls", "tsserver", "dartls" }
+local servers = { "tsserver", "dartls" }
 for _, lsp in ipairs(servers) do
     nvim_lsp[lsp].setup { on_attach = on_attach }
 end 
+
+nvim_lsp.gopls.setup({
+  on_attach = on_attach,
+  settings = {
+    gopls = {
+      buildFlags = {"-tags=integration"}
+    },
+  },
+})
 -- END
 
 -- START config telescope
@@ -133,6 +140,7 @@ vim.api.nvim_set_keymap('n', '<Leader>ff', '<cmd>:Telescope find_files<cr>', {no
 vim.api.nvim_set_keymap('n', '<Leader>bi', '<cmd>:Telescope buffers<cr>', {noremap = true})
 vim.api.nvim_set_keymap('n', '<Leader>ca', '<cmd>:Telescope lsp_code_actions<cr>', {noremap = true})
 vim.api.nvim_set_keymap('n', '<Leader>cR', '<cmd>:Telescope lsp_references<cr>', {noremap = true})
+vim.api.nvim_set_keymap('n', '<Leader>ce', '<cmd>:Telescope lsp_document_diagnostics<CR>', {noremap = ture})
 -- END
 
 
