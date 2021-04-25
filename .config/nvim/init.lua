@@ -8,7 +8,7 @@ vim.api.nvim_set_keymap('n', '<C-g>', '<cmd>:noh<cr>', {noremap = true}) -- <C-g
 ----
 vim.o.splitright = true -- always create new split windows on right side
 vim.o.splitbelow = true -- always create new split windows on bottom
-vim.o.relativenumber = true -- use relative line number 
+vim.o.relativenumber = true -- use relative line number
 vim.o.number = true -- show absolute line number of the current line
 vim.o.undofile = true -- keep undo history
 vim.o.tabstop = 4 -- set tab size to 4 space
@@ -77,6 +77,17 @@ require('packer').startup(
         -- better syntax highlighting
         use 'nvim-treesitter/nvim-treesitter'
 
+        -- better lsp diagnostic buffer
+        use {
+            "folke/lsp-trouble.nvim",
+            requires = "kyazdani42/nvim-web-devicons",
+            config = function()
+                require("trouble").setup({})
+            end
+        }
+
+        -- for using custom linters
+        use 'mfussenegger/nvim-lint'
     end
 )
 -- END
@@ -86,7 +97,6 @@ local nvim_lsp = require('lspconfig')
 
 local on_attach = function(client, bufnr)
     local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-    local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
 
     -- Mappings.
     local opts = { noremap=true, silent=true }
@@ -102,14 +112,16 @@ local on_attach = function(client, bufnr)
     if client.resolved_capabilities.document_formatting then
         buf_set_keymap("n", "<space>cf", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
     end
+
+
 end
 
--- Use a loop to conveniently both setup defined servers 
+-- Use a loop to conveniently both setup defined servers
 -- and map buffer local keybindings when the language server attaches
 local servers = { "tsserver", "dartls" }
 for _, lsp in ipairs(servers) do
     nvim_lsp[lsp].setup { on_attach = on_attach }
-end 
+end
 
 nvim_lsp.gopls.setup({
   on_attach = on_attach,
@@ -119,6 +131,50 @@ nvim_lsp.gopls.setup({
     },
   },
 })
+
+local system_name
+if vim.fn.has("mac") == 1 then
+  system_name = "macOS"
+elseif vim.fn.has("unix") == 1 then
+  system_name = "Linux"
+elseif vim.fn.has('win32') == 1 then
+  system_name = "Windows"
+else
+  print("Unsupported system for sumneko")
+end
+
+-- set the path to the sumneko installation; if you previously installed via the now deprecated :LspInstall, use
+local sumneko_root_path = '/Users/mek.kiatkrai/lua-language-server'
+local sumneko_binary = sumneko_root_path.."/bin/"..system_name.."/lua-language-server"
+
+nvim_lsp.sumneko_lua.setup {
+    cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"};
+    settings = {
+        Lua = {
+            runtime = {
+                -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
+                version = 'LuaJIT',
+                -- Setup your lua path
+                path = vim.split(package.path, ';'),
+            },
+            diagnostics = {
+                -- Get the language server to recognize the `vim` global
+                globals = {'vim'},
+            },
+            workspace = {
+                -- Make the server aware of Neovim runtime files
+                library = {
+                    [vim.fn.expand('$VIMRUNTIME/lua')] = true,
+                    [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
+                },
+            },
+            -- Do not send telemetry data containing a randomized but unique identifier
+            telemetry = {
+                enable = false,
+            },
+        },
+    },
+}
 -- END
 
 -- START config telescope
@@ -140,7 +196,6 @@ vim.api.nvim_set_keymap('n', '<Leader>ff', '<cmd>:Telescope find_files<cr>', {no
 vim.api.nvim_set_keymap('n', '<Leader>bi', '<cmd>:Telescope buffers<cr>', {noremap = true})
 vim.api.nvim_set_keymap('n', '<Leader>ca', '<cmd>:Telescope lsp_code_actions<cr>', {noremap = true})
 vim.api.nvim_set_keymap('n', '<Leader>cR', '<cmd>:Telescope lsp_references<cr>', {noremap = true})
-vim.api.nvim_set_keymap('n', '<Leader>ce', '<cmd>:Telescope lsp_document_diagnostics<CR>', {noremap = ture})
 -- END
 
 
@@ -214,4 +269,15 @@ require('nvim-treesitter.configs').setup({
 
 -- START config nvim-autopairs
 require('nvim-autopairs').setup()
+-- END
+
+-- START config lsp-trouble
+vim.api.nvim_set_keymap('n', '<Leader>ce', '<cmd>:LspTroubleToggle<CR>', {noremap = true})
+-- END
+
+-- START config lint
+require('lint').linters_by_ft = {
+  go = {'golangcilint',}
+}
+vim.api.nvim_exec("au FileType go au BufWritePost <buffer> lua require('lint').try_lint()", false) -- auto run golangci-lint on *.go file
 -- END
