@@ -88,6 +88,10 @@ require('packer').startup(
 
         -- for using custom linters
         use 'mfussenegger/nvim-lint'
+
+        -- dracula theme
+        use 'folke/tokyonight.nvim'
+
     end
 )
 -- END
@@ -280,4 +284,9 @@ require('lint').linters_by_ft = {
   go = {'golangcilint',}
 }
 vim.api.nvim_exec("au FileType go au BufWritePost <buffer> lua require('lint').try_lint()", false) -- auto run golangci-lint on *.go file
+-- END
+
+-- START config theme
+vim.g.tokyonight_style = "night"
+vim.cmd[[colorscheme tokyonight]]
 -- END
