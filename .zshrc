@@ -101,3 +101,5 @@ alias vi="nvim"
 alias vim="nvim"
 
 alias luamake=/Users/mek.kiatkrai/lua-language-server/3rd/luamake/luamake
+
+alias gcloud=/Users/mek.kiatkrai/Downloads/Work/google-cloud-sdk/bin/gcloud
