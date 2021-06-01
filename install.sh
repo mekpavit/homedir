@@ -10,7 +10,7 @@ set -e
 touch ~/.bash_sessions_disable
 
 cd ~
-for file in .gitconfig .gitignore .zshrc .zshenv .doom.d .config; do
+for file in .gitconfig .gitignore .zshrc .zshenv .ideavimrc .doom.d .config; do
   if [ -h $file ] ; then
     # File is already a symbolic link
     echo "Symlink for $file is already there"

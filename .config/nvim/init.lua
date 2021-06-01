@@ -49,11 +49,14 @@ require('packer').startup(
         use 'tpope/vim-fugitive' -- add magit-like features to neovim
         use 'tpope/vim-commentary' -- add gc action to comment code
         use 'tpope/vim-sleuth' -- auto detect indent based on opening file
-        use 'itchyny/lightline.vim' -- beatiful status bar
+        use 'vim-airline/vim-airline' -- beatiful status bar
         use 'windwp/nvim-autopairs' -- auto pair parentheses
 
         -- ready-to-use neovim's native lsp configurations
         use 'neovim/nvim-lspconfig'
+
+        -- ready-to-use metals - LSP for Scala
+        use 'scalameta/nvim-metals'
 
         -- various plugins for completion and snippeting
         use 'hrsh7th/nvim-compe' -- Completion
@@ -89,46 +92,18 @@ require('packer').startup(
         -- for using custom linters
         use 'mfussenegger/nvim-lint'
 
-        -- dracula theme
-        use 'folke/tokyonight.nvim'
+        -- theme
+        use 'mhartington/oceanic-next'
 
     end
 )
 -- END
 
 -- START config LSP
-local nvim_lsp = require('lspconfig')
-
-local on_attach = function(client, bufnr)
-    local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-
-    -- Mappings.
-    local opts = { noremap=true, silent=true }
-    buf_set_keymap('n', '<Leader>cD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-    buf_set_keymap('n', '<Leader>cd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
-    buf_set_keymap('n', 'gh', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
-    buf_set_keymap('n', '<Leader>ci', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-    buf_set_keymap('n', '<Leader>cr', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-    buf_set_keymap('n', '[e', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-    buf_set_keymap('n', ']e', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
-
-    -- Set some keybinds conditional on server capabilities
-    if client.resolved_capabilities.document_formatting then
-        buf_set_keymap("n", "<space>cf", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
-    end
-
-
-end
-
--- Use a loop to conveniently both setup defined servers
--- and map buffer local keybindings when the language server attaches
-local servers = { "tsserver", "dartls", "pyright", "metals" }
-for _, lsp in ipairs(servers) do
-    nvim_lsp[lsp].setup { on_attach = on_attach }
-end
-
-nvim_lsp.gopls.setup({
-  on_attach = on_attach,
+require('lspconfig').tsserver.setup({})
+require('lspconfig').dartls.setup({})
+require('lspconfig').pyright.setup({})
+require('lspconfig').gopls.setup({
   settings = {
     gopls = {
       buildFlags = {"-tags=integration"}
@@ -151,7 +126,7 @@ end
 local sumneko_root_path = '/Users/mek.kiatkrai/lua-language-server'
 local sumneko_binary = sumneko_root_path.."/bin/"..system_name.."/lua-language-server"
 
-nvim_lsp.sumneko_lua.setup {
+require('lspconfig').sumneko_lua.setup {
     cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"};
     settings = {
         Lua = {
@@ -179,6 +154,32 @@ nvim_lsp.sumneko_lua.setup {
         },
     },
 }
+
+metalsConfig = require'metals'.bare_config
+  metalsConfig.settings = {
+    showImplicitArguments = true,
+    excludePackages = {
+      "akka.actor.typed.javadsl",
+      "com.github.swagger.akka.javadsl"
+    },
+    scalafixConfigPath = ".scalafix.conf",
+  }
+vim.api.nvim_exec([[
+    augroup lsp
+        au!
+        au FileType scala,sbt lua require('metals').initialize_or_attach(metalsConfig)
+    augroup end
+]], false)
+
+-- Keymap for LSP
+vim.api.nvim_set_keymap('n', '<Leader>cD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', { noremap=true, silent=true })
+vim.api.nvim_set_keymap('n', '<Leader>cd', '<Cmd>lua vim.lsp.buf.definition()<CR>', { noremap=true, silent=true })
+vim.api.nvim_set_keymap('n', 'gh', '<Cmd>lua vim.lsp.buf.hover()<CR>', { noremap=true, silent=true })
+vim.api.nvim_set_keymap('n', '<Leader>ci', '<cmd>lua vim.lsp.buf.implementation()<CR>', { noremap=true, silent=true })
+vim.api.nvim_set_keymap('n', '<Leader>cr', '<cmd>lua vim.lsp.buf.rename()<CR>', { noremap=true, silent=true })
+vim.api.nvim_set_keymap('n', '[e', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', { noremap=true, silent=true })
+vim.api.nvim_set_keymap('n', ']e', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', { noremap=true, silent=true })
+vim.api.nvim_set_keymap("n", "<space>cf", "<cmd>lua vim.lsp.buf.formatting()<CR>", { noremap=true, silent=true })
 -- END
 
 -- START config telescope
@@ -243,13 +244,6 @@ vim.api.nvim_exec("inoremap <silent><expr> <CR>      compe#confirm('<CR>')", fal
 -- START config nerdtree
 vim.api.nvim_set_keymap('n', '<Leader>op', ':NERDTreeToggle<CR>', {})
 -- END
---
--- START config lightline
-vim.g.lightline = { colorscheme = 'powerline';
-    active = { left = { { 'mode', 'paste' }, { 'gitbranch', 'readonly', 'filename', 'modified' } } };
-    component_function = { gitbranch = 'fugitive#head', };
-}
--- END
 
 -- START config vim-test
 vim.api.nvim_set_keymap("t", "jk", '<C-\\><C-n>', {noremap = true}) -- to be able to use jk on test result buffer
@@ -287,6 +281,7 @@ vim.api.nvim_exec("au FileType go au BufWritePost <buffer> lua require('lint').t
 -- END
 
 -- START config theme
-vim.g.tokyonight_style = "night"
-vim.cmd[[colorscheme tokyonight]]
+vim.g.airline_theme = 'oceanicnext'
+vim.cmd[[syntax enable]]
+vim.cmd[[colorscheme OceanicNext]]
 -- END
