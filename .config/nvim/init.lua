@@ -49,7 +49,7 @@ require('packer').startup(
         use 'tpope/vim-fugitive' -- add magit-like features to neovim
         use 'tpope/vim-commentary' -- add gc action to comment code
         use 'tpope/vim-sleuth' -- auto detect indent based on opening file
-        use 'vim-airline/vim-airline' -- beatiful status bar
+        use 'itchyny/lightline.vim' -- beatiful status bar
         use 'windwp/nvim-autopairs' -- auto pair parentheses
 
         -- ready-to-use neovim's native lsp configurations
@@ -93,7 +93,7 @@ require('packer').startup(
         use 'mfussenegger/nvim-lint'
 
         -- theme
-        use 'mhartington/oceanic-next'
+        use 'joshdick/onedark.vim'
 
     end
 )
@@ -281,7 +281,10 @@ vim.api.nvim_exec("au FileType go au BufWritePost <buffer> lua require('lint').t
 -- END
 
 -- START config theme
-vim.g.airline_theme = 'oceanicnext'
+vim.g.lightline = { colorscheme = 'onedark';
+    active = { left = { { 'mode', 'paste' }, { 'gitbranch', 'readonly', 'filename', 'modified' } } };
+    component_function = { gitbranch = 'fugitive#head', };
+}
 vim.cmd[[syntax enable]]
-vim.cmd[[colorscheme OceanicNext]]
+vim.cmd[[colorscheme onedark]]
 -- END
