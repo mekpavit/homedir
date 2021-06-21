@@ -162,7 +162,6 @@ metalsConfig = require'metals'.bare_config
       "akka.actor.typed.javadsl",
       "com.github.swagger.akka.javadsl"
     },
-    scalafixConfigPath = ".scalafix.conf",
   }
 vim.api.nvim_exec([[
     augroup lsp
