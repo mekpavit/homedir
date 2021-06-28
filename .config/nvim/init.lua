@@ -13,6 +13,7 @@ vim.o.number = true -- show absolute line number of the current line
 vim.o.undofile = true -- keep undo history
 vim.o.tabstop = 4 -- set tab size to 4 space
 vim.o.clipboard = 'unnamed' -- make yank and put working with macOS native copy and paste
+vim.o.termguicolors = true -- make colors shown properly
 vim.api.nvim_exec('let loaded_matchparen = 1', false) -- remove highlight on matching parentheses
 ---- Hightlight on yank
 vim.api.nvim_exec([[
@@ -32,10 +33,17 @@ vim.api.nvim_set_keymap('n', 'j', "v:count == 0 ? 'gj' : 'j'", {noremap= true, e
 -- END
 
 -- START install packer.nvim for package management
-if vim.fn.empty(vim.fn.glob(vim.fn.stdpath('data')..'/site/pack/packer/opt/packer.nvim')) > 0 then
-    vim.api.nvim_command('!git clone https://github.com/wbthomason/packer.nvim '..vim.fn.stdpath('data')..'/site/pack/packer/opt/packer.nvim')
+local install_path = vim.fn.stdpath('data') .. '/site/pack/packer/start/packer.nvim'
+if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
+    vim.api.nvim_command('!git clone https://github.com/wbthomason/packer.nvim '..install_path)
+    vim.cmd [[packadd packer.nvim]]
 end
-vim.cmd [[packadd packer.nvim]]
+vim.api.nvim_exec([[
+  augroup Packer
+    autocmd!
+    autocmd BufWritePost init.lua PackerCompile
+  augroup end
+]], false)
 -- END
 
 -- START install neovim plugins
@@ -46,11 +54,19 @@ require('packer').startup(
 
         -- must have plugins
         use 'tpope/vim-surround' -- remap S to add one character surround the visual selected text
-        use 'tpope/vim-fugitive' -- add magit-like features to neovim
         use 'tpope/vim-commentary' -- add gc action to comment code
         use 'tpope/vim-sleuth' -- auto detect indent based on opening file
-        use 'itchyny/lightline.vim' -- beatiful status bar
         use 'windwp/nvim-autopairs' -- auto pair parentheses
+
+        -- statusline
+        use {
+          'hoob3rt/lualine.nvim',
+          requires = {'kyazdani42/nvim-web-devicons', opt = true}
+        }
+
+        -- git related
+        use 'tpope/vim-fugitive' 
+        use {'lewis6991/gitsigns.nvim', requires = {'nvim-lua/plenary.nvim'}}
 
         -- ready-to-use neovim's native lsp configurations
         use 'neovim/nvim-lspconfig'
@@ -60,12 +76,14 @@ require('packer').startup(
 
         -- various plugins for completion and snippeting
         use 'hrsh7th/nvim-compe' -- Completion
+        use 'ray-x/lsp_signature.nvim' -- Show signature while typing
         use 'hrsh7th/vim-vsnip' -- Snippet engine
         use 'hrsh7th/vim-vsnip-integ' -- Provide integration between vim-vsnip and neovim's builtin lsp client
         use 'golang/vscode-go' -- Snippets for Go
         use 'Dart-Code/Dart-Code' -- Snippets for Dart and Flutter
 
-        use 'preservim/nerdtree' -- File Explorer
+        -- File Explorer
+        use {'kyazdani42/nvim-tree.lua', require = {'kyazdani42/nvim-web-devicons'}} 
 
         --[[
             Fuzzy finder that can do many useful things. What I uses here are
@@ -156,13 +174,16 @@ require('lspconfig').sumneko_lua.setup {
 }
 
 metalsConfig = require'metals'.bare_config
-  metalsConfig.settings = {
-    showImplicitArguments = true,
-    excludePackages = {
-      "akka.actor.typed.javadsl",
-      "com.github.swagger.akka.javadsl"
-    },
-  }
+metalsConfig.settings = {
+  showImplicitArguments = true,
+  excludePackages = {
+    "akka.actor.typed.javadsl",
+    "com.github.swagger.akka.javadsl"
+  },
+}
+metalsConfig.on_attach = function(client, bufnr)
+  require "lsp_signature".on_attach() -- Add this on on_attach function of any LSP config to have signature popping up
+end
 vim.api.nvim_exec([[
     augroup lsp
         au!
@@ -172,9 +193,7 @@ vim.api.nvim_exec([[
 
 -- Keymap for LSP
 vim.api.nvim_set_keymap('n', '<Leader>cD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', { noremap=true, silent=true })
-vim.api.nvim_set_keymap('n', '<Leader>cd', '<Cmd>lua vim.lsp.buf.definition()<CR>', { noremap=true, silent=true })
 vim.api.nvim_set_keymap('n', 'gh', '<Cmd>lua vim.lsp.buf.hover()<CR>', { noremap=true, silent=true })
-vim.api.nvim_set_keymap('n', '<Leader>ci', '<cmd>lua vim.lsp.buf.implementation()<CR>', { noremap=true, silent=true })
 vim.api.nvim_set_keymap('n', '<Leader>cr', '<cmd>lua vim.lsp.buf.rename()<CR>', { noremap=true, silent=true })
 vim.api.nvim_set_keymap('n', '[e', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', { noremap=true, silent=true })
 vim.api.nvim_set_keymap('n', ']e', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', { noremap=true, silent=true })
@@ -197,9 +216,15 @@ require('telescope').setup({
     },
 })
 vim.api.nvim_set_keymap('n', '<Leader>ff', '<cmd>:Telescope find_files<cr>', {noremap = true})
+vim.api.nvim_set_keymap('n', '<Leader>fg', '<cmd>:Telescope live_grep<cr>', {noremap = true})
 vim.api.nvim_set_keymap('n', '<Leader>bi', '<cmd>:Telescope buffers<cr>', {noremap = true})
+
 vim.api.nvim_set_keymap('n', '<Leader>ca', '<cmd>:Telescope lsp_code_actions<cr>', {noremap = true})
 vim.api.nvim_set_keymap('n', '<Leader>cR', '<cmd>:Telescope lsp_references<cr>', {noremap = true})
+vim.api.nvim_set_keymap('n', '<Leader>ci', '<cmd>:Telescope lsp_implementations<cr>', {noremap = true})
+vim.api.nvim_set_keymap('n', '<Leader>cd', '<cmd>:Telescope lsp_definitions<cr>', { noremap=true })
+
+vim.api.nvim_set_keymap('n', '<Leader>gc', '<cmd>:Telescope git_commits<cr>', { noremap=true })
 -- END
 
 
@@ -241,7 +266,9 @@ vim.api.nvim_exec("inoremap <silent><expr> <CR>      compe#confirm('<CR>')", fal
 -- END
 
 -- START config nerdtree
-vim.api.nvim_set_keymap('n', '<Leader>op', ':NERDTreeToggle<CR>', {})
+vim.api.nvim_set_keymap('n', '<Leader>op', ':NvimTreeToggle<CR>', {})
+vim.g.nvim_tree_group_empty = 1
+vim.g.nvim_tree_width = 50
 -- END
 
 -- START config vim-test
@@ -251,8 +278,9 @@ vim.api.nvim_set_keymap("n", "<Leader>mta", "<cmd>:TestFile -strategy=neovim<CR>
 vim.api.nvim_set_keymap("n", "<Leader>mtt", "<cmd>:TestLast -strategy=neovim<CR>", {noremap = true})
 -- END
 
--- START config fugitive
+-- START config git-related
 vim.api.nvim_set_keymap("n", "<Leader>gg", "<cmd>:Git<cr>", {noremap = true})
+require('gitsigns').setup()
 -- END
 
 -- START config treesitter
@@ -279,11 +307,37 @@ require('lint').linters_by_ft = {
 vim.api.nvim_exec("au FileType go au BufWritePost <buffer> lua require('lint').try_lint()", false) -- auto run golangci-lint on *.go file
 -- END
 
--- START config theme
-vim.g.lightline = { colorscheme = 'onedark';
-    active = { left = { { 'mode', 'paste' }, { 'gitbranch', 'readonly', 'filename', 'modified' } } };
-    component_function = { gitbranch = 'fugitive#head', };
+-- START config statusline
+require'lualine'.setup {
+  options = {
+    icons_enabled = true,
+    theme = 'onedark',
+    component_separators = {'', ''},
+    section_separators = {'', ''},
+    disabled_filetypes = {}
+  },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch'},
+    lualine_c = {'filename'},
+    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = {'filename'},
+    lualine_x = {'location'},
+    lualine_y = {},
+    lualine_z = {}
+  },
+  tabline = {},
+  extensions = {}
 }
+-- END
+
+-- START config theme
 vim.cmd[[syntax enable]]
 vim.cmd[[colorscheme onedark]]
 -- END
