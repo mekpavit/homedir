@@ -297,7 +297,7 @@ require('nvim-autopairs').setup()
 -- END
 
 -- START config lsp-trouble
-vim.api.nvim_set_keymap('n', '<Leader>ce', '<cmd>:LspTroubleToggle<CR>', {noremap = true})
+vim.api.nvim_set_keymap('n', '<Leader>ce', '<cmd>:TroubleToggle lsp_document_diagnostics<CR>', {noremap = true})
 -- END
 
 -- START config lint
