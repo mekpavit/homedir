@@ -77,6 +77,7 @@ require('packer').startup(
         -- various plugins for completion and snippeting
         use 'hrsh7th/nvim-compe' -- Completion
         use 'ray-x/lsp_signature.nvim' -- Show signature while typing
+        use 'nvim-lua/lsp-status.nvim' -- Show LSP server status
         use 'hrsh7th/vim-vsnip' -- Snippet engine
         use 'hrsh7th/vim-vsnip-integ' -- Provide integration between vim-vsnip and neovim's builtin lsp client
         use 'golang/vscode-go' -- Snippets for Go
@@ -308,6 +309,10 @@ vim.api.nvim_exec("au FileType go au BufWritePost <buffer> lua require('lint').t
 -- END
 
 -- START config statusline
+local function getCurrentRelativeFilePath()
+  return vim.fn['expand']('%')
+end
+
 require'lualine'.setup {
   options = {
     icons_enabled = true,
@@ -319,10 +324,10 @@ require'lualine'.setup {
   sections = {
     lualine_a = {'mode'},
     lualine_b = {'branch'},
-    lualine_c = {'filename'},
+    lualine_c = {getCurrentRelativeFilePath},
     lualine_x = {'encoding', 'fileformat', 'filetype'},
     lualine_y = {'progress'},
-    lualine_z = {'location'}
+    lualine_z = {require'lsp-status'.status}
   },
   inactive_sections = {
     lualine_a = {},
