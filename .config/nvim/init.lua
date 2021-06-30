@@ -182,6 +182,7 @@ metalsConfig.settings = {
     "com.github.swagger.akka.javadsl"
   },
 }
+vim.api.nvim_exec('set shortmess-=F', false)
 metalsConfig.on_attach = function(client, bufnr)
   require "lsp_signature".on_attach() -- Add this on on_attach function of any LSP config to have signature popping up
 end
