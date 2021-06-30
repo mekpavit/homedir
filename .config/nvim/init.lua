@@ -311,7 +311,7 @@ vim.api.nvim_exec("au FileType go au BufWritePost <buffer> lua require('lint').t
 
 -- START config statusline
 local function getCurrentRelativeFilePath()
-  return vim.fn['expand']('%')
+  return vim.fn['fnamemodify'](vim.fn['expand']('%'), ":~:.")
 end
 
 require'lualine'.setup {
