@@ -6,14 +6,14 @@ vim.api.nvim_set_keymap('i', '<C-g>', '<ESC>', {noremap = true}) -- <C-g> to exi
 vim.api.nvim_set_keymap('x', '<C-g>', '<ESC>', {noremap = true}) -- <C-g> to clear visual select
 vim.api.nvim_set_keymap('n', '<C-g>', '<cmd>:noh<cr>', {noremap = true}) -- <C-g> to clear highlight
 ----
-vim.o.splitright = true -- always create new split windows on right side
-vim.o.splitbelow = true -- always create new split windows on bottom
-vim.o.relativenumber = true -- use relative line number
-vim.o.number = true -- show absolute line number of the current line
-vim.o.undofile = true -- keep undo history
-vim.o.tabstop = 4 -- set tab size to 4 space
-vim.o.clipboard = 'unnamed' -- make yank and put working with macOS native copy and paste
-vim.o.termguicolors = true -- make colors shown properly
+vim.opt.splitright = true -- always create new split windows on right side
+vim.opt.splitbelow = true -- always create new split windows on bottom
+vim.opt.relativenumber = true -- use relative line number
+vim.opt.number = true -- show absolute line number of the current line
+vim.opt.undofile = true -- keep undo history
+vim.opt.tabstop = 4 -- set tab size to 4 space
+vim.opt.clipboard = 'unnamed' -- make yank and put working with macOS native copy and paste
+vim.opt.termguicolors = true -- make colors shown properly
 vim.api.nvim_exec('let loaded_matchparen = 1', false) -- remove highlight on matching parentheses
 ---- Hightlight on yank
 vim.api.nvim_exec([[
@@ -174,6 +174,7 @@ require('lspconfig').sumneko_lua.setup {
     },
 }
 
+vim.opt_global.shortmess:remove("F"):append("c")
 metalsConfig = require'metals'.bare_config
 metalsConfig.settings = {
   showImplicitArguments = true,
@@ -182,16 +183,16 @@ metalsConfig.settings = {
     "com.github.swagger.akka.javadsl"
   },
 }
-vim.api.nvim_exec('set shortmess-=F', false)
+
 metalsConfig.on_attach = function(client, bufnr)
   require "lsp_signature".on_attach() -- Add this on on_attach function of any LSP config to have signature popping up
 end
-vim.api.nvim_exec([[
-    augroup lsp
-        au!
-        au FileType scala,sbt lua require('metals').initialize_or_attach(metalsConfig)
-    augroup end
-]], false)
+
+vim.cmd([[augroup lsp]])
+vim.cmd([[autocmd!]])
+vim.cmd([[autocmd FileType scala,sbt lua require("metals").initialize_or_attach(metalsConfig)]])
+vim.cmd([[augroup end]])
+
 
 -- Keymap for LSP
 vim.api.nvim_set_keymap('n', '<Leader>cD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', { noremap=true, silent=true })
@@ -231,7 +232,7 @@ vim.api.nvim_set_keymap('n', '<Leader>gc', '<cmd>:Telescope git_commits<cr>', { 
 
 
 -- START config nvim-compe
-vim.o.completeopt = 'menuone,noselect'
+vim.opt.completeopt = 'menuone,noselect'
 require('compe').setup({
     enabled = true;
     autocomplete = true;
