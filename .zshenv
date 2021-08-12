@@ -1,4 +1,4 @@
 export PATH="$HOME/Library/Application Support/Coursier/bin:$HOME/flutter/bin:$HOME/go/bin:/usr/local/go/bin:$HOME/bin:/usr/local/bin:$PATH"
 export KUBE_EDITOR="/usr/local/bin/nvim"
 export EDITOR="/usr/local/bin/nvim"
-export JAVA_HOME="/Library/Java/JavaVirtualMachines/openjdk-11.jdk/Contents/Home"
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/openjdk-8.jdk/Contents/Home"
