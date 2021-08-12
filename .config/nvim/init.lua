@@ -67,12 +67,16 @@ require('packer').startup(
         -- git related
         use 'tpope/vim-fugitive' 
         use {'lewis6991/gitsigns.nvim', requires = {'nvim-lua/plenary.nvim'}}
+        use 'f-person/git-blame.nvim'
 
         -- ready-to-use neovim's native lsp configurations
         use 'neovim/nvim-lspconfig'
 
         -- ready-to-use metals - LSP for Scala
         use 'scalameta/nvim-metals'
+
+        -- ready-tu-use jdt - LSP for Java
+        use 'mfussenegger/nvim-jdtls'
 
         -- various plugins for completion and snippeting
         use 'hrsh7th/nvim-compe' -- Completion
@@ -191,6 +195,7 @@ end
 vim.cmd([[augroup lsp]])
 vim.cmd([[autocmd!]])
 vim.cmd([[autocmd FileType scala,sbt lua require("metals").initialize_or_attach(metalsConfig)]])
+vim.cmd([[autocmd FileType java lua require("jdtls").start_or_attach({cmd = {'java-lsp.sh'}})]])
 vim.cmd([[augroup end]])
 
 
@@ -283,6 +288,8 @@ vim.api.nvim_set_keymap("n", "<Leader>mtt", "<cmd>:TestLast -strategy=neovim<CR>
 
 -- START config git-related
 vim.api.nvim_set_keymap("n", "<Leader>gg", "<cmd>:Git<cr>", {noremap = true})
+vim.api.nvim_set_keymap("n", "<Leader>gb", "<cmd>:GitBlameToggle<cr>", {noremap = true})
+vim.g.gitblame_message_template = '<summary> • <date> • <author>'
 require('gitsigns').setup()
 -- END
 
