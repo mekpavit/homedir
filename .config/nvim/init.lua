@@ -206,6 +206,7 @@ vim.api.nvim_set_keymap('n', '<Leader>cr', '<cmd>lua vim.lsp.buf.rename()<CR>', 
 vim.api.nvim_set_keymap('n', '[e', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', { noremap=true, silent=true })
 vim.api.nvim_set_keymap('n', ']e', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', { noremap=true, silent=true })
 vim.api.nvim_set_keymap("n", "<space>cf", "<cmd>lua vim.lsp.buf.formatting()<CR>", { noremap=true, silent=true })
+vim.api.nvim_set_keymap("n", "<space>e", "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>", { noremap=true, silent=true })
 -- END
 
 -- START config telescope
