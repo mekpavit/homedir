@@ -2,7 +2,7 @@
 # export PATH=/usr/local/go/bin:$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/pkiatkraipob/.oh-my-zsh"
+export ZSH=$HOME/.oh-my-zsh
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -99,7 +99,3 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias vi="nvim"
 alias vim="nvim"
-
-alias luamake=/Users/mek.kiatkrai/lua-language-server/3rd/luamake/luamake
-
-alias gcloud=/Users/mek.kiatkrai/Downloads/Work/google-cloud-sdk/bin/gcloud
