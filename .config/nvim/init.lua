@@ -82,10 +82,6 @@ require('packer').startup(
         use 'hrsh7th/nvim-compe' -- Completion
         use 'ray-x/lsp_signature.nvim' -- Show signature while typing
         use 'nvim-lua/lsp-status.nvim' -- Show LSP server status
-        use 'hrsh7th/vim-vsnip' -- Snippet engine
-        use 'hrsh7th/vim-vsnip-integ' -- Provide integration between vim-vsnip and neovim's builtin lsp client
-        use 'golang/vscode-go' -- Snippets for Go
-        use 'Dart-Code/Dart-Code' -- Snippets for Dart and Flutter
 
         -- File Explorer
         use {'kyazdani42/nvim-tree.lua', require = {'kyazdani42/nvim-web-devicons'}} 
@@ -272,14 +268,18 @@ vim.api.nvim_set_keymap('s', '<C-j>', '<Tab>', {noremap = true} )
 vim.api.nvim_set_keymap('s', '<C-k>', '<S-Tab>', {noremap = true} )
 -- END
 
--- START config vim-vsnip
-vim.api.nvim_exec("inoremap <silent><expr> <CR>      compe#confirm('<CR>')", false)
--- END
-
--- START config nerdtree
+-- START config nvim-tree
 vim.api.nvim_set_keymap('n', '<Leader>op', ':NvimTreeToggle<CR>', {})
 vim.g.nvim_tree_group_empty = 1
 vim.g.nvim_tree_width = 50
+vim.g.nvim_tree_show_icons = {
+  git = 0,
+  folders = 1, -- or 0,
+  files = 1, -- or 0,
+  folder_arrows = 1, -- or 0
+}
+vim.g.nvim_tree_gitignore = 0
+vim.g.nvim_tree_git_hl = 0
 -- END
 
 -- START config vim-test
