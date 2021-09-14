@@ -189,7 +189,9 @@ metalsConfig.settings = {
 }
 
 metalsConfig.on_attach = function(client, bufnr)
-  require "lsp_signature".on_attach() -- Add this on on_attach function of any LSP config to have signature popping up
+  require "lsp_signature".on_attach({
+    zindex = 50
+  }) -- Add this on on_attach function of any LSP config to have signature popping up
 end
 
 vim.cmd([[augroup lsp]])
@@ -221,7 +223,7 @@ require('telescope').setup({
             n = {
                 ["<C-g>"] = require('telescope.actions').close,
             },
-        },
+        }
     },
 })
 vim.api.nvim_set_keymap('n', '<Leader>ff', '<cmd>:Telescope find_files<cr>', {noremap = true})
