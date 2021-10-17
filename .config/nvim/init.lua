@@ -12,7 +12,7 @@ vim.opt.relativenumber = true -- use relative line number
 vim.opt.number = true -- show absolute line number of the current line
 vim.opt.undofile = true -- keep undo history
 vim.opt.tabstop = 4 -- set tab size to 4 space
-vim.opt.clipboard = 'unnamed' -- make yank and put working with macOS native copy and paste
+vim.opt.clipboard = 'unnamedplus' -- make yank and put working with macOS native copy and paste
 vim.opt.termguicolors = true -- make colors shown properly
 vim.api.nvim_exec('let loaded_matchparen = 1', false) -- remove highlight on matching parentheses
 ---- Hightlight on yank
@@ -80,7 +80,7 @@ require('packer').startup(
 
         -- various plugins for completion and snippeting
         use 'hrsh7th/nvim-compe' -- Completion
-        use 'ray-x/lsp_signature.nvim' -- Show signature while typing
+        -- use 'ray-x/lsp_signature.nvim' -- Show signature while typing
         use 'nvim-lua/lsp-status.nvim' -- Show LSP server status
 
         -- File Explorer
@@ -113,6 +113,9 @@ require('packer').startup(
 
         -- theme
         use 'joshdick/onedark.vim'
+
+        -- add indent line
+        use "lukas-reineke/indent-blankline.nvim"
 
     end
 )
@@ -184,11 +187,11 @@ metalsConfig.settings = {
   },
 }
 
-metalsConfig.on_attach = function(client, bufnr)
-  require "lsp_signature".on_attach({
-    zindex = 50
-  }) -- Add this on on_attach function of any LSP config to have signature popping up
-end
+-- metalsConfig.on_attach = function(client, bufnr)
+--   require "lsp_signature".on_attach({
+--     zindex = 50
+--   }) -- Add this on on_attach function of any LSP config to have signature popping up
+-- end
 
 vim.cmd([[augroup lsp]])
 vim.cmd([[autocmd!]])
@@ -208,6 +211,27 @@ vim.api.nvim_set_keymap("n", "<space>e", "<cmd>lua vim.lsp.diagnostic.show_line_
 -- END
 
 -- START config telescope
+local previewers = require('telescope.previewers')
+
+local new_maker = function(filepath, bufnr, opts)
+  opts = opts or {}
+
+  filepath = vim.fn.expand(filepath)
+  vim.loop.fs_stat(filepath, function(_, stat)
+    if not stat then return end
+    if stat.size > 100000 then
+      return
+    else
+      previewers.buffer_previewer_maker(filepath, bufnr, opts)
+    end
+  end)
+end
+
+require('telescope').setup {
+  defaults = {
+    buffer_previewer_maker = new_maker,
+  }
+}
 require('telescope').setup({
     defaults = {
         mappings = {
@@ -219,7 +243,8 @@ require('telescope').setup({
             n = {
                 ["<C-g>"] = require('telescope.actions').close,
             },
-        }
+        },
+        buffer_previewer_maker = new_maker,
     },
 })
 vim.api.nvim_set_keymap('n', '<Leader>ff', '<cmd>:Telescope find_files<cr>', {noremap = true})
@@ -270,9 +295,13 @@ vim.api.nvim_exec("inoremap <silent><expr> <CR>      compe#confirm('<CR>')", fal
 -- END
 
 -- START config nvim-tree
+require('nvim-tree').setup({
+    view = {
+        width = 50
+    }
+})
 vim.api.nvim_set_keymap('n', '<Leader>op', ':NvimTreeToggle<CR>', {})
 vim.g.nvim_tree_group_empty = 1
-vim.g.nvim_tree_width = 50
 vim.g.nvim_tree_show_icons = {
   git = 0,
   folders = 1, -- or 0,
@@ -359,4 +388,11 @@ require'lualine'.setup {
 -- START config theme
 vim.cmd[[syntax enable]]
 vim.cmd[[colorscheme onedark]]
+-- END
+
+-- START config indent blank line
+require("indent_blankline").setup {
+    char = "|",
+    buftype_exclude = {"terminal"}
+}
 -- END
