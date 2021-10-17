@@ -79,7 +79,8 @@ require('packer').startup(
         use 'mfussenegger/nvim-jdtls'
 
         -- various plugins for completion and snippeting
-        use 'hrsh7th/nvim-compe' -- Completion
+        use 'hrsh7th/nvim-cmp' -- Completion
+        use 'hrsh7th/cmp-nvim-lsp'
         -- use 'ray-x/lsp_signature.nvim' -- Show signature while typing
         use 'nvim-lua/lsp-status.nvim' -- Show LSP server status
 
@@ -112,7 +113,7 @@ require('packer').startup(
         use 'mfussenegger/nvim-lint'
 
         -- theme
-        use 'joshdick/onedark.vim'
+        use 'dracula/vim'
 
         -- add indent line
         use "lukas-reineke/indent-blankline.nvim"
@@ -178,7 +179,7 @@ require('lspconfig').sumneko_lua.setup {
 }
 
 vim.opt_global.shortmess:remove("F"):append("c")
-metalsConfig = require'metals'.bare_config
+metalsConfig = require'metals'.bare_config()
 metalsConfig.settings = {
   showImplicitArguments = true,
   excludePackages = {
@@ -262,36 +263,25 @@ vim.api.nvim_set_keymap('n', '<Leader>gc', '<cmd>:Telescope git_commits<cr>', { 
 
 -- START config nvim-compe
 vim.opt.completeopt = 'menuone,noselect'
-require('compe').setup({
-    enabled = true;
-    autocomplete = true;
-    debug = false;
-    min_length = 1;
-    preselect = 'always';
-    throttle_time = 80;
-    source_timeout = 200;
-    incomplete_delay = 400;
-    max_abbr_width = 100;
-    max_kind_width = 100;
-    max_menu_width = 100;
-    documentation = true;
-
-    source = {
-        path = true;
-        buffer = true;
-        calc = true;
-        nvim_lsp = true;
-        nvim_lua = true;
-        vsnip = true;
-    };
-})
-vim.api.nvim_set_keymap('i', '<C-j>', '<C-n>', {noremap = true} )
-vim.api.nvim_set_keymap('i', '<C-k>', '<C-p>', {noremap = true} )
-vim.api.nvim_set_keymap('c', '<C-j>', '<C-n>', {noremap = true} )
-vim.api.nvim_set_keymap('c', '<C-k>', '<C-p>', {noremap = true} )
-vim.api.nvim_set_keymap('s', '<C-j>', '<Tab>', {noremap = true} )
-vim.api.nvim_set_keymap('s', '<C-k>', '<S-Tab>', {noremap = true} )
-vim.api.nvim_exec("inoremap <silent><expr> <CR>      compe#confirm('<CR>')", false)
+local cmp = require('cmp')
+cmp.setup {
+  mapping = {
+    ['<C-p>'] = cmp.mapping.select_prev_item(),
+    ['<C-n>'] = cmp.mapping.select_next_item(),
+    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-e>'] = cmp.mapping.close(),
+    ['<CR>'] = cmp.mapping.confirm {
+      behavior = cmp.ConfirmBehavior.Replace,
+      select = true,
+    },
+  },
+  sources = {
+    { name = 'nvim_lsp' },
+    { name = 'buffer' },
+  },
+}
 -- END
 
 -- START config nvim-tree
@@ -387,7 +377,7 @@ require'lualine'.setup {
 
 -- START config theme
 vim.cmd[[syntax enable]]
-vim.cmd[[colorscheme onedark]]
+vim.cmd[[colorscheme dracula]]
 -- END
 
 -- START config indent blank line
