@@ -118,6 +118,9 @@ require('packer').startup(
         -- add indent line
         use "lukas-reineke/indent-blankline.nvim"
 
+        -- better search panel
+        use "windwp/nvim-spectre"
+
     end
 )
 -- END
@@ -320,7 +323,7 @@ require('gitsigns').setup()
 require('nvim-treesitter.configs').setup({
     ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
     highlight = {
-      enable = true,              -- false will disable the whole extension
+      enable = false,              -- false will disable the whole extension
     },
 })
 -- END
@@ -381,8 +384,16 @@ vim.cmd[[colorscheme dracula]]
 -- END
 
 -- START config indent blank line
+vim.opt.list = true
+vim.opt.listchars:append("space:⋅")
+vim.opt.listchars:append("eol:↴")
+
 require("indent_blankline").setup {
-    char = "|",
-    buftype_exclude = {"terminal"}
+    show_end_of_line = true,
+    space_char_blankline = " ",
 }
+-- END
+
+-- START config search panel
+vim.api.nvim_set_keymap('n', '<Leader>fs', "<cmd>:lua require('spectre').open()<CR>", {noremap = true})
 -- END
