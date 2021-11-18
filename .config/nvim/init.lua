@@ -30,6 +30,8 @@ vim.api.nvim_set_keymap('n', 'Y', 'y$', { noremap = true})
 vim.api.nvim_set_keymap('n', 'k', "v:count == 0 ? 'gk' : 'k'", { noremap=true, expr = true, silent = true})
 vim.api.nvim_set_keymap('n', 'j', "v:count == 0 ? 'gj' : 'j'", {noremap= true, expr = true, silent = true})
 ----
+---- Highlight all occurences of the word-under-cursor without going to the next occurrence
+vim.api.nvim_set_keymap('n', '*', '*N', { noremap = true})
 -- END
 
 -- START install packer.nvim for package management
@@ -57,6 +59,7 @@ require('packer').startup(
         use 'tpope/vim-commentary' -- add gc action to comment code
         use 'tpope/vim-sleuth' -- auto detect indent based on opening file
         use 'windwp/nvim-autopairs' -- auto pair parentheses
+        use 'ggandor/lightspeed.nvim' -- jump to any 2 chars
 
         -- statusline
         use {
@@ -397,3 +400,4 @@ require("indent_blankline").setup {
 -- START config search panel
 vim.api.nvim_set_keymap('n', '<Leader>fs', "<cmd>:lua require('spectre').open()<CR>", {noremap = true})
 -- END
+
