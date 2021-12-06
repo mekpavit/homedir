@@ -75,6 +75,10 @@ require('packer').startup(
         -- ready-to-use neovim's native lsp configurations
         use 'neovim/nvim-lspconfig'
 
+        -- Debugger Protocal
+        use 'mfussenegger/nvim-dap'
+        use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
+
         -- ready-to-use metals - LSP for Scala
         use 'scalameta/nvim-metals'
 
@@ -124,6 +128,9 @@ require('packer').startup(
         -- better search panel
         use "windwp/nvim-spectre"
 
+		-- Go related plugins
+		use "buoto/gotests-vim"
+
     end
 )
 -- END
@@ -133,12 +140,17 @@ require('lspconfig').tsserver.setup({})
 require('lspconfig').dartls.setup({})
 require('lspconfig').pyright.setup({})
 require('lspconfig').gopls.setup({
-  settings = {
-    gopls = {
-      buildFlags = {"-tags=integration"}
+  cmd = {"gopls", "serve"},
+    settings = {
+      gopls = {
+        analyses = {
+          unusedparams = true,
+        },
+        staticcheck = true,
+      },
     },
-  },
-})
+  }
+)
 
 local system_name
 if vim.fn.has("mac") == 1 then
@@ -193,6 +205,9 @@ metalsConfig.settings = {
     "com.github.swagger.akka.javadsl"
   },
 }
+metalsConfig.on_attach = function(client, bufnr)
+  require("metals").setup_dap()
+end
 
 -- metalsConfig.on_attach = function(client, bufnr)
 --   require "lsp_signature".on_attach({
@@ -291,12 +306,6 @@ cmp.setup {
 -- END
 
 -- START config nvim-tree
-require('nvim-tree').setup({
-    view = {
-        width = 50
-    }
-})
-vim.api.nvim_set_keymap('n', '<Leader>op', ':NvimTreeToggle<CR>', {})
 vim.g.nvim_tree_group_empty = 1
 vim.g.nvim_tree_show_icons = {
   git = 0,
@@ -306,6 +315,15 @@ vim.g.nvim_tree_show_icons = {
 }
 vim.g.nvim_tree_gitignore = 0
 vim.g.nvim_tree_git_hl = 0
+require('nvim-tree').setup({
+    view = {
+        width = 50
+    },
+	git = {
+        enable = false
+    },
+})
+vim.api.nvim_set_keymap('n', '<Leader>op', ':NvimTreeToggle<CR>', {})
 -- END
 
 -- START config vim-test
@@ -324,9 +342,9 @@ require('gitsigns').setup()
 
 -- START config treesitter
 require('nvim-treesitter.configs').setup({
-    ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+    ensure_installed = {'go'}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
     highlight = {
-      enable = false,              -- false will disable the whole extension
+      enable = true,              -- false will disable the whole extension
     },
 })
 -- END
@@ -401,3 +419,34 @@ require("indent_blankline").setup {
 vim.api.nvim_set_keymap('n', '<Leader>fs', "<cmd>:lua require('spectre').open()<CR>", {noremap = true})
 -- END
 
+
+-- START config DAP
+local dap = require("dap")
+dap.configurations.scala = {
+  {
+    type = "scala",
+    request = "launch",
+    name = "Run",
+    metals = {
+      runType = "run",
+    },
+  },
+  {
+    type = "scala",
+    request = "launch",
+    name = "Test File",
+    metals = {
+      runType = "testFile",
+    },
+  },
+  {
+    type = "scala",
+    request = "launch",
+    name = "Test Target",
+    metals = {
+      runType = "testTarget",
+    },
+  },
+}
+require("dapui").setup()
+-- END
